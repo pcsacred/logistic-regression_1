@@ -1,0 +1,61 @@
+cci <- read.csv("cci.csv", sep=",", header = T)
+dim(cci)
+head(cci)  
+str(cci)
+
+library(moonBook)
+table1 <- mytable(death_1yr~.-patientsID, show.total = T, method = 3, max.ylev = 20, data=cci)
+table1
+
+library(car)
+
+fit <- glm(data = cci, death_1yr~.-patientsID-DM2)
+sqrt(vif(fit))>1.4
+
+fit <- glm(data = cci, death_1yr~.-patientsID-DM2, family = 'binomial')
+fit.od <- glm(data = cci, death_1yr~.-patientsID-DM2, family = 'quasibinomial')
+pchisq(summary(fit.od)$dispersion * fit$df.residual, fit$df.residual, lower = F)
+
+result_glm <- glm(data = cci, death_1yr~.-patientsID-DM2)
+summary(result_glm)
+
+result_glm <- step(result_glm, directon ="backward")
+summary(result_glm)
+
+names(cci)
+
+full.model <-glm(death_1yr~.-patientsID-DM2, data = cci)
+reduced.model <- step(full.model, direction = "backward")
+
+min.model <- glm(death_1yr~1, data = cci)
+fwd.model <- step(min.model, direction = "forward", 
+                  scope = (death_1yr ~ sex+agegroup+DM1+PAD+CHF+OMI+COPD+
+                             liver1+CKD+CVD+rheuma+ulcer+dementia+malig+
+                             meta+hemi+HIV))
+summary(reduced.model)
+summary(fwd.model)
+
+library(leaps)
+
+leaps <- regsubsets(death_1yr ~ sex+agegroup+DM1+PAD+CHF+OMI+COPD+
+                             liver1+CKD+CVD+rheuma+ulcer+dementia+malig+
+                             meta+hemi+HIV, data = cci, nbest = 10)
+plot(leaps, scale='adjr2', main='Adjusted R^2')
+
+result_1 <- glm(data = cci, death_1yr~agegroup+OMI+dementia+malig+meta)
+summary(result_1)
+
+ORtable=function(x,digits=2){
+    suppressMessages(a<-confint(x))
+    result=data.frame(exp(coef(x)),exp(a))
+    result=round(result,digits)
+    result=cbind(result,round(summary(x)$coefficient[,4],3))
+    colnames(result)=c("OR","2.5%","97.5%","p")
+    result
+}
+exp(result_1$coefficients)
+ORtable(result_1)
+ORplot(result_1,type=2,show.OR=T,show.CI=T)
+
+result_2 <- glm(data = cci, death_1yr~malig*meta+agegroup+OMI+dementia+malig+meta)
+summary(result_2)
