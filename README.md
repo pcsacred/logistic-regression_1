@@ -7,7 +7,7 @@ comorbidities and 1 year mortality in 100 patients
 # B. Covariables
 * patientID (char3): patients ID  
 * sex (char1): M0, F1  
-* agegroup (char2): 0 year = 0, 0-4 year = 1, 5~9 year = 2, 10~14 year = 3, ... over 85 = 18  
+* agegroup (char2): 0 year = 0, 0-4 year = 1, 5-9 year = 2, 10-14 year = 3, ... over 85 = 18  
 * DM1 (char1): DM without complications, yes 1, no 0  
 * DM2 (char1): DM with complications, yes 1, no 0  
 * PAD (char1): peripheral arterial disease, yes 1, no 0  
